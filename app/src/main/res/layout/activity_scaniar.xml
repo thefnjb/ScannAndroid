@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="20dp"
+    android:background="@drawable/scann">
+
+    <!-- Caja de texto para mostrar los datos escaneados -->
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="6dp"
+        android:layout_marginBottom="20dp">
+
+        <EditText
+            android:id="@+id/txtDatosEscaneados"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:background="@android:drawable/editbox_background"
+            android:focusable="false"
+            android:gravity="center"
+            android:hint="Aquí aparecerán los datos escaneados"
+            android:inputType="textMultiLine"
+            android:padding="10dp"
+            android:textSize="18sp" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botón para escanear QR con ícono -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnScann"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:backgroundTint="#F70F3289"
+        android:text="Escanear QR"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:icon="@drawable/baseline_adf_scanner_24"
+        app:iconGravity="start"
+        app:iconPadding="10dp" />
+
+    <!-- Botón para guardar con ícono -->
+
+    <!-- Botón para limpiar con ícono -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCopiar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:backgroundTint="#F7062F90"
+        android:text="Copiar"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:icon="@drawable/baseline_content_copy_24"
+        app:iconGravity="start"
+        app:iconPadding="10dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLimpiar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Limpiar"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        app:icon="@drawable/baseline_cleaning_services_24"
+        app:iconGravity="start"
+        app:iconPadding="10dp"
+        android:backgroundTint="#162E6A"/>
+
+</LinearLayout>

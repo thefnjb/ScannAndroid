@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/reguistro"
+    android:fillViewport="true"
+    tools:context=".Registrar">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="30dp"
+            app:cardElevation="10dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:id="@+id/loginText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Registrarse"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="36sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/txtnomapellidos"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/custom_editext"
+                    android:drawableLeft="@drawable/baseline_person_24"
+                    android:drawablePadding="8dp"
+                    android:hint="Nombre y Apellidos"
+                    android:inputType="textPersonName"
+                    android:padding="8dp"
+                    android:textColor="@color/black" />
+
+                <EditText
+                    android:id="@+id/txtemail"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/custom_editext"
+                    android:drawableLeft="@drawable/baseline_attach_email_24"
+                    android:drawablePadding="8dp"
+                    android:hint="Correo Electrónico"
+                    android:inputType="textEmailAddress"
+                    android:padding="8dp"
+                    android:textColor="@color/black" />
+
+                <EditText
+                    android:id="@+id/txttelefono"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/custom_editext"
+                    android:drawableLeft="@drawable/baseline_app_blocking_24"
+                    android:drawablePadding="8dp"
+                    android:hint="Teléfono Móvil"
+                    android:inputType="phone"
+                    android:padding="8dp"
+                    android:textColor="@color/black" />
+
+                <EditText
+                    android:id="@+id/txtusuario"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/custom_editext"
+                    android:drawableLeft="@drawable/baseline_person_24"
+                    android:drawablePadding="8dp"
+                    android:hint="Usuario"
+                    android:inputType="text"
+                    android:padding="8dp"
+                    android:textColor="@color/black" />
+
+                <EditText
+                    android:id="@+id/txtclave"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/custom_editext"
+                    android:drawableLeft="@drawable/baseline_app_blocking_24"
+                    android:drawablePadding="8dp"
+                    android:hint="Contraseña"
+                    android:inputType="textPassword"
+                    android:padding="8dp"
+                    android:textColor="@color/black" />
+
+                <Button
+                    android:id="@+id/btnregistrar"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="30dp"
+                    android:backgroundTint="@color/design_default_color_primary"
+                    android:text="REGISTRAR"
+                    android:textSize="18sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/lblp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:padding="6dp"
+            android:text="¿Ya estás registrado?"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/lbliniciarsesion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/custom_editext"
+            android:padding="8dp"
+            android:text="Iniciar Ahora"
+            android:textColor="@color/white"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</ScrollView>
