@@ -2,13 +2,19 @@ package com.proyecto.scann;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable; // <<<< Nueva importación
-import android.text.TextWatcher; // <<<< Nueva importación
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
-import android.widget.EditText; // <<<< Nueva importación
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,7 +27,8 @@ import com.proyecto.scann.adapters.ScanResultAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale; // <<<< Nueva importación para Locale en filtro
+import java.util.Locale;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,18 +37,21 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
-public class HistorialActivity extends AppCompatActivity implements ScanResultAdapter.OnItemDeleteListener {
+public class HistorialActivity extends AppCompatActivity implements
+        ScanResultAdapter.OnItemDeleteListener,
+        ScanResultAdapter.OnItemCopyListener,
+        ScanResultAdapter.OnItemClickListener {
 
     private static final String BASE_URL = "https://67dac53435c87309f52df40a.mockapi.io/";
 
     private RecyclerView recyclerView;
     private ScanResultAdapter adapter;
-    private List<ScanResult> scanResultList; // Lista que se muestra y se filtra
-    private List<ScanResult> originalScanResultList; // <<<< NUEVO: Copia de la lista original sin filtrar
+    private List<ScanResult> scanResultList;
+    private List<ScanResult> originalScanResultList;
     private ApiService apiService;
     private TextView tvNoScansMessage;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private EditText etSearch; // <<<< NUEVO: Declaración del EditText de búsqueda
+    private EditText etSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,56 +60,37 @@ public class HistorialActivity extends AppCompatActivity implements ScanResultAd
 
         recyclerView = findViewById(R.id.recyclerViewScanHistory);
         tvNoScansMessage = findViewById(R.id.tv_no_scans_message);
-        etSearch = findViewById(R.id.etSearch); // <<<< NUEVO: Inicialización del EditText
+        etSearch = findViewById(R.id.etSearch);
 
-        // --- Configuración del RecyclerView ---
         scanResultList = new ArrayList<>();
-        originalScanResultList = new ArrayList<>(); // Inicializar la lista original
-        adapter = new ScanResultAdapter(scanResultList, this);
+        originalScanResultList = new ArrayList<>();
+        adapter = new ScanResultAdapter(scanResultList, this, this, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // Inicialización del SwipeRefreshLayout
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            fetchScanHistory();
-        });
+        swipeRefreshLayout.setOnRefreshListener(this::fetchScanHistory);
 
-        // <<<< INICIO: Configuración del TextWatcher para la búsqueda >>>>
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // No es necesario implementar para esta funcionalidad
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Cuando el texto cambia, filtramos la lista
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 filterList(s.toString());
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                // No es necesario implementar para esta funcionalidad
-            }
+            @Override public void afterTextChanged(Editable s) {}
         });
-        // <<<< FIN: Configuración del TextWatcher >>>>
 
-
-        // --- Inicialización de Retrofit y ApiService ---
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(logging)
-                .build();
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(logging).build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build();
-        apiService = retrofit.create(ApiService.class);
 
-        fetchScanHistory(); // Cargar el historial al inicio
+        apiService = retrofit.create(ApiService.class);
+        fetchScanHistory();
     }
 
     private void fetchScanHistory() {
@@ -108,52 +99,30 @@ public class HistorialActivity extends AppCompatActivity implements ScanResultAd
             @Override
             public void onResponse(Call<List<ScanResult>> call, Response<List<ScanResult>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<ScanResult> fetchedScans = response.body();
-                    Log.d("HistorialAty", "Historial cargado correctamente. Cantidad: " + fetchedScans.size());
-
-                    originalScanResultList.clear(); // Limpiar la lista original antes de añadir nuevos datos
-                    originalScanResultList.addAll(fetchedScans); // Guardar la lista completa
-
-                    // Aplicar el filtro actual (si hay texto en la barra de búsqueda)
+                    originalScanResultList.clear();
+                    originalScanResultList.addAll(response.body());
                     filterList(etSearch.getText().toString());
-
                 } else {
-                    String errorMsg = "Error al cargar historial: " + response.code();
-                    try {
-                        if (response.errorBody() != null) {
-                            errorMsg += " - " + response.errorBody().string();
-                        }
-                    } catch (Exception e) {
-                        Log.e("HistorialAty", "Error al leer errorBody", e);
-                    }
-                    Log.e("HistorialAty", errorMsg);
-                    Toast.makeText(HistorialActivity.this, "Error al cargar historial: " + response.code(), Toast.LENGTH_LONG).show();
-                    tvNoScansMessage.setVisibility(View.VISIBLE);
-                    tvNoScansMessage.setText("Error al cargar historial: " + response.code() + "\nIntenta de nuevo.");
+                    mostrarError("Error al cargar historial: " + response.code());
                 }
                 swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<List<ScanResult>> call, Throwable t) {
-                Log.e("HistorialAty", "Error de conexión al cargar historial: " + t.getMessage(), t);
-                Toast.makeText(HistorialActivity.this, "Error de conexión al cargar historial: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                tvNoScansMessage.setVisibility(View.VISIBLE);
-                tvNoScansMessage.setText("Error de conexión: " + t.getMessage() + "\nVerifica tu conexión a internet.");
+                mostrarError("Error de conexión: " + t.getMessage());
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
-    // <<<< NUEVO MÉTODO: Para filtrar la lista de escaneos >>>>
     private void filterList(String searchText) {
         List<ScanResult> filteredList = new ArrayList<>();
         if (searchText.isEmpty()) {
-            filteredList.addAll(originalScanResultList); // Si el texto está vacío, mostrar la lista original
+            filteredList.addAll(originalScanResultList);
         } else {
             String lowerCaseSearchText = searchText.toLowerCase(Locale.getDefault());
             for (ScanResult scan : originalScanResultList) {
-                // Filtra por los datos del escaneo o cualquier otro campo relevante
                 if (scan.getData().toLowerCase(Locale.getDefault()).contains(lowerCaseSearchText)) {
                     filteredList.add(scan);
                 }
@@ -162,9 +131,8 @@ public class HistorialActivity extends AppCompatActivity implements ScanResultAd
 
         scanResultList.clear();
         scanResultList.addAll(filteredList);
-        adapter.notifyDataSetChanged(); // Notificar al adaptador que los datos han cambiado
+        adapter.notifyDataSetChanged();
 
-        // Actualizar mensaje de "No hay escaneos" si la lista filtrada está vacía
         if (scanResultList.isEmpty()) {
             tvNoScansMessage.setVisibility(View.VISIBLE);
             tvNoScansMessage.setText("No se encontraron resultados para '" + searchText + "'.");
@@ -175,32 +143,22 @@ public class HistorialActivity extends AppCompatActivity implements ScanResultAd
         }
     }
 
-
     @Override
     public void onDeleteClick(int position, String scanId) {
         new AlertDialog.Builder(this)
                 .setTitle("Eliminar Escaneo")
                 .setMessage("¿Estás seguro de que quieres eliminar este escaneo?")
-                .setPositiveButton("Sí, eliminar", (dialog, which) -> {
-                    deleteScanResult(position, scanId);
-                })
+                .setPositiveButton("Sí, eliminar", (dialog, which) -> deleteScanResult(position, scanId))
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
 
     private void deleteScanResult(final int position, String scanId) {
         Toast.makeText(this, "Eliminando escaneo...", Toast.LENGTH_SHORT).show();
-        Log.d("HistorialAty", "Intentando eliminar escaneo con ID: " + scanId + " en posición: " + position);
-
         apiService.deleteScanResult(scanId).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Log.d("HistorialAty", "Escaneo eliminado correctamente del servidor: " + scanId);
-                    Toast.makeText(HistorialActivity.this, "Escaneo eliminado.", Toast.LENGTH_SHORT).show();
-
-                    // Eliminar también de la lista original y luego volver a filtrar
-                    // Primero, encontrar el elemento original para eliminarlo de originalScanResultList
                     ScanResult removedScan = null;
                     for (ScanResult scan : originalScanResultList) {
                         if (scan.getId().equals(scanId)) {
@@ -211,36 +169,48 @@ public class HistorialActivity extends AppCompatActivity implements ScanResultAd
                     if (removedScan != null) {
                         originalScanResultList.remove(removedScan);
                     }
-
-                    // Volver a filtrar la lista visible para que el elemento desaparezca inmediatamente
                     filterList(etSearch.getText().toString());
-
-                    // Actualizar mensaje si la lista (filtrada o no) queda vacía
                     if (scanResultList.isEmpty()) {
                         tvNoScansMessage.setVisibility(View.VISIBLE);
-                        tvNoScansMessage.setText("No hay escaneos guardados aún."); // Restaurar mensaje original si queda vacío
+                        tvNoScansMessage.setText("No hay escaneos guardados aún.");
                         recyclerView.setVisibility(View.GONE);
                     }
-
                 } else {
-                    String errorMsg = "Error al eliminar escaneo: " + response.code();
-                    try {
-                        if (response.errorBody() != null) {
-                            errorMsg += " - " + response.errorBody().string();
-                        }
-                    } catch (Exception e) {
-                        Log.e("HistorialAty", "Error al leer errorBody al eliminar", e);
-                    }
-                    Log.e("HistorialAty", errorMsg);
-                    Toast.makeText(HistorialActivity.this, "Error al eliminar: " + response.code(), Toast.LENGTH_LONG).show();
+                    mostrarError("Error al eliminar: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("HistorialAty", "Error de conexión al eliminar escaneo: " + t.getMessage(), t);
-                Toast.makeText(HistorialActivity.this, "Error de conexión al eliminar: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                mostrarError("Error de conexión al eliminar: " + t.getMessage());
             }
         });
+    }
+
+    private void mostrarError(String mensaje) {
+        Log.e("HistorialActivity", mensaje);
+        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+        tvNoScansMessage.setVisibility(View.VISIBLE);
+        tvNoScansMessage.setText(mensaje + "\nVerifica tu conexión a internet.");
+    }
+
+    // Copiar texto al portapapeles
+    @Override
+    public void onCopyClick(String scanData) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Escaneo", scanData);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(this, "Texto copiado al portapapeles", Toast.LENGTH_SHORT).show();
+    }
+
+    // Abrir enlaces si es URL válida
+    @Override
+    public void onItemClick(String scanData) {
+        if (Patterns.WEB_URL.matcher(scanData).matches()) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(scanData));
+            startActivity(browserIntent);
+        } else {
+            Toast.makeText(this, "No es un enlace válido", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -23,16 +23,33 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
 
     private List<ScanResult> scanResults;
     private OnItemDeleteListener deleteListener;
+    private OnItemCopyListener copyListener;
+    private OnItemClickListener clickListener; // Nuevo: clic normal
 
-    // Interfaz para manejar eliminación de ítems
+    // Interfaz para eliminar ítems
     public interface OnItemDeleteListener {
         void onDeleteClick(int position, String scanId);
     }
 
-    // Constructor con listener
-    public ScanResultAdapter(List<ScanResult> scanResults, OnItemDeleteListener listener) {
+    // Interfaz para copiar datos
+    public interface OnItemCopyListener {
+        void onCopyClick(String dataToCopy);
+    }
+
+    // Nuevo: Interfaz para clic normal
+    public interface OnItemClickListener {
+        void onItemClick(String scanData);
+    }
+
+    // Constructor que recibe los 3 listeners
+    public ScanResultAdapter(List<ScanResult> scanResults,
+                             OnItemDeleteListener deleteListener,
+                             OnItemCopyListener copyListener,
+                             OnItemClickListener clickListener) {
         this.scanResults = scanResults;
-        this.deleteListener = listener;
+        this.deleteListener = deleteListener;
+        this.copyListener = copyListener;
+        this.clickListener = clickListener;
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -63,17 +80,33 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
 
         holder.tvScanData.setText(scanResult.getData());
 
-        // Formatear la fecha
+        // Formatear fecha a zona horaria Lima
         Date date = new Date(scanResult.getFecha() * 1000L);
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
         TimeZone timeZone = TimeZone.getTimeZone("America/Lima");
         sdf.setTimeZone(timeZone);
         holder.tvScanFecha.setText("Fecha: " + sdf.format(date));
 
-        // Listener del icono de eliminar
+        // Evento eliminar
         holder.ivDeleteScan.setOnClickListener(v -> {
             if (deleteListener != null) {
                 deleteListener.onDeleteClick(position, scanResult.getId());
+            }
+        });
+
+        // Evento copiar (mantener presionado)
+        holder.itemView.setOnLongClickListener(v -> {
+            if (copyListener != null) {
+                copyListener.onCopyClick(scanResult.getData());
+                return true;
+            }
+            return false;
+        });
+
+        // Evento clic normal
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onItemClick(scanResult.getData());
             }
         });
     }
