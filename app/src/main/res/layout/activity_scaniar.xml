@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
@@ -10,7 +9,6 @@
     android:background="@drawable/scann">
 
     <!-- Caja de texto para mostrar los datos escaneados -->
-
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,7 +29,7 @@
             android:textSize="18sp" />
     </androidx.cardview.widget.CardView>
 
-    <!-- Botón para escanear QR con ícono -->
+    <!-- Botón para escanear QR -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnScann"
         android:layout_width="match_parent"
@@ -45,9 +43,7 @@
         app:iconGravity="start"
         app:iconPadding="10dp" />
 
-    <!-- Botón para guardar con ícono -->
-
-    <!-- Botón para limpiar con ícono -->
+    <!-- Botón para copiar -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCopiar"
         android:layout_width="match_parent"
@@ -60,17 +56,29 @@
         app:icon="@drawable/baseline_content_copy_24"
         app:iconGravity="start"
         app:iconPadding="10dp" />
-
+    <!-- Botón para Historial -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVerHistorial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="#F7062F90"
+        android:text="Historial"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:icon="@drawable/outline_checklist_24"
+        app:iconGravity="start"
+        app:iconPadding="10dp" />
+    <!-- Botón para limpiar -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnLimpiar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#162E6A"
         android:text="Limpiar"
-        android:textSize="20sp"
         android:textColor="@color/white"
+        android:textSize="20sp"
         app:icon="@drawable/baseline_cleaning_services_24"
         app:iconGravity="start"
-        app:iconPadding="10dp"
-        android:backgroundTint="#162E6A"/>
-
+        app:iconPadding="10dp" />
 </LinearLayout>

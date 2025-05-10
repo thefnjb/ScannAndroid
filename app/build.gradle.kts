@@ -40,14 +40,17 @@ dependencies {
     implementation (libs.cardview)
 
     // Retrofit para realizar solicitudes HTTP(com.squareup.retrofit2:retrofit:2.9.0)
-    implementation (libs.retrofit)
+    implementation(libs.retrofit)
     // Gson para convertir objetos JSON(com.squareup.retrofit2:converter-gson:2.9.0)
-    implementation (libs.converter.gson)
+    implementation(libs.converter.gson)
     // Logging Interceptor para depuración de solicitudes(com.squareup.okhttp3:logging-interceptor:4.9.3)
     implementation(libs.logging.interceptor)
     // ZXing para escaneo de códigos QR(com.journeyapps:zxing-android-embedded:4.3.0)
     implementation(libs.zxing.android.embedded.v430)
 
+    implementation (libs.cardview)
+
+    implementation(libs.swiperefreshlayout)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
